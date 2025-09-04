@@ -9,47 +9,55 @@ html, body {
   width: 100%;
 }
 
-/* UI-knappar och sökruta */
-#controls {
+/* Sökfältet högst upp i mitten */
+#searchContainer {
   position: absolute;
   top: 15px;
-  left: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  max-width: 500px;
   z-index: 1500;
-  width: 250px;
 }
 
-#controls input {
-  padding: 8px;
-  border-radius: 6px;
+#searchBox {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 16px;
 }
 
-#controls ul {
+#suggestions {
   list-style: none;
   margin: 0;
   padding: 0;
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;
-  max-height: 150px;
+  max-height: 200px;
   overflow-y: auto;
   display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 1600;
 }
 
-#controls ul li {
-  padding: 8px;
+#suggestions li {
+  padding: 10px;
   cursor: pointer;
 }
 
-#controls ul li:hover {
+#suggestions li:hover {
   background: #f0f0f0;
 }
 
-#controls button {
+/* Dark/Light mode-knappen */
+#modeBtn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1500;
   background: white;
   border: 1px solid #ccc;
   padding: 8px 12px;
@@ -59,13 +67,32 @@ html, body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-#controls button.active {
+/* Recenter-knappen längst ner i mitten */
+#bottomControls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+}
+
+#recenterBtn {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+#recenterBtn.active {
   background: #007bff;
   color: white;
   border-color: #0056b3;
 }
 
-/* Popup overlay när plats nekas */
+/* Popup overlay */
 #locationPopup {
   position: fixed;
   top: 0;
@@ -85,44 +112,4 @@ html, body {
   border-radius: 12px;
   text-align: center;
   max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-#locationPopup button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: #007bff;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-/* Dark mode */
-body.dark {
-  background: #181818;
-  color: #eee;
-}
-
-body.dark #controls input,
-body.dark #controls ul {
-  background: #333;
-  color: #eee;
-  border: 1px solid #555;
-}
-
-body.dark #controls ul li:hover {
-  background: #444;
-}
-
-body.dark #controls button {
-  background: #333;
-  color: #eee;
-  border: 1px solid #555;
-}
-
-body.dark #controls button.active {
-  background: #ff9500;
-  color: #000;
-}
+  box-shadow: 0 4px 12
