@@ -205,7 +205,7 @@ function toggleMode() {
   darkMode = !darkMode;
   if (darkMode) {
     map.eachLayer(l => map.removeLayer(l));
-    L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png").addTo(map);
+    L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png").addTo(map);
     document.getElementById("modeBtn").textContent = "☀️ Light Mode";
   } else {
     map.eachLayer(l => map.removeLayer(l));
