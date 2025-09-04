@@ -2,46 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Smart Navigation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPS Navigation</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="script.js" defer></script>
+  <!-- Google Maps API (replace YOUR_API_KEY with real key) -->
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap">
+  </script>
 </head>
 <body>
-  <!-- Search Bar -->
-  <div id="searchBar">
-    <input type="text" id="to" placeholder="Search destination...">
-    <button id="viewBtn">
-      <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png" alt="Search">
+  <!-- Top search bar -->
+  <div id="topBar">
+    <button id="menuBtn">
+      <img src="https://img.icons8.com/ios-filled/50/menu--v6.png" alt="Menu">
     </button>
-  </div>
-
-  <!-- Floating Action Buttons -->
-  <div id="fabMenu">
-    <button id="locBtn" title="My Location">
-      <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="My Location">
+    <input id="destination" type="text" placeholder="Search destination">
+    <button id="micBtn">
+      <img src="https://img.icons8.com/ios-filled/50/microphone.png" alt="Mic">
     </button>
-    <button id="navBtn" title="Start Navigation">
-      <img src="https://cdn-icons-png.flaticon.com/512/61/61168.png" alt="Navigation">
-    </button>
-    <button id="themeBtn" title="Toggle Theme">
-      <img src="https://cdn-icons-png.flaticon.com/512/1164/1164954.png" alt="Toggle Theme">
+    <button id="searchBtn">
+      <img src="https://img.icons8.com/ios-filled/50/search--v1.png" alt="Search">
     </button>
   </div>
 
   <!-- Map -->
   <div id="map"></div>
 
-  <!-- Directions Panel -->
-  <div id="directionsPanel">
-    <h2 id="directionsTitle">Directions</h2>
-    <div id="steps"></div>
+  <!-- Floating Action Buttons -->
+  <div id="fabMenu">
+    <button class="fab" id="gpsBtn">
+      <img src="https://img.icons8.com/ios-filled/50/navigation.png" alt="GPS">
+    </button>
+    <button class="fab" id="darkModeBtn">
+      <img src="https://img.icons8.com/ios-filled/50/do-not-disturb-2.png" alt="Dark Mode">
+    </button>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Bottom directions panel -->
+  <div id="directionsPanel" class="collapsed">
+    <div id="panelHeader"></div>
+    <h2>Directions</h2>
+    <div id="steps">Search for a route to see directions here.</div>
+  </div>
 </body>
 </html>
