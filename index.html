@@ -3,173 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPS Navigation Map</title>
+  <title>Navigation Map</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
 
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; }
-    #map { height:100vh; width:100%; }
-
-    #controls {
-      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      background: white; padding: 10px; border-radius: 12px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-      z-index:1000; display:flex; gap:5px; flex-wrap: wrap;
-    }
-    input { padding:6px; border:1px solid #ccc; border-radius:6px; flex:1; }
-    button {
-      padding:6px 12px; border:none; border-radius:6px;
-      background:#007BFF; color:white; cursor:pointer;
-    }
-    button:hover { background:#0056b3; }
-
-    #directions {
-      position:absolute; right:10px; top:10px; bottom:10px;
-      width:300px; overflow:auto; background:white;
-      border-radius:12px; padding:10px;
-      box-shadow:0 3px 8px rgba(0,0,0,0.3);
-      z-index:999;
-    }
-    #steps p { margin:6px 0; font-size:14px; }
-
-    /* Mobile layout */
-    @media(max-width:768px){
-      #directions {
-        width:100%; height:30%; bottom:0; top:auto; right:0; left:0;
-        border-radius:12px 12px 0 0;
-      }
-    }
-  </style>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="controls">
-    <input id="to" type="text" placeholder="Destination (e.g. Stockholm)">
-    <button onclick="useMyLocation()">📍 My Location</button>
-    <button onclick="getRoute()">Get Route</button>
-    <button onclick="viewRoute()">🔍 View Route</button>
-    <button onclick="startNavigation()">▶️ Start Navigation</button>
+    <input id="to" type="text" placeholder="Enter destination (e.g. Stockholm)">
+    <button id="locBtn">📍 My Location</button>
+    <button id="viewBtn">🔍 View Route</button>
+    <button id="navBtn">▶️ Start Navigation</button>
   </div>
+
   <div id="map"></div>
-  <div id="directions"><b>Directions</b><hr><div id="steps"></div></div>
+
+  <div id="directions">
+    <b>Directions</b>
+    <hr>
+    <div id="steps"></div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
-  <script>
-    // Initialize map
-    const map = L.map('map').setView([59.3293, 18.0686], 6); // Stockholm area
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    let userLocation = null;
-    let control = null;
-    let currentRoute = null;
-    let userMarker = null;
-    let navMode = false;
-    let watchId = null;
-
-    // Get current GPS location once
-    function useMyLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          userLocation = L.latLng(pos.coords.latitude, pos.coords.longitude);
-          if (userMarker) map.removeLayer(userMarker);
-          userMarker = L.marker(userLocation, { icon: L.icon({
-            iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-            iconSize: [25,25]
-          }) }).addTo(map).bindPopup("You are here").openPopup();
-          map.setView(userLocation, 15);
-        }, () => alert("Could not get your location"));
-      } else {
-        alert("Your browser does not support GPS");
-      }
-    }
-
-    // Get route from current location to destination
-    function getRoute() {
-      const to = document.getElementById("to").value;
-      if (!userLocation) {
-        alert("Please click 'My Location' first.");
-        return;
-      }
-
-      if (control) { map.removeControl(control); }
-
-      control = L.Routing.control({
-        waypoints: [ userLocation ],
-        router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
-        geocoder: L.Control.Geocoder.nominatim(),
-        show: false,
-        routeWhileDragging: false,
-        createMarker: (i, wp, nWps) => {
-          return L.marker(wp.latLng, { draggable: false });
-        }
-      }).addTo(map);
-
-      // Geocode destination
-      L.Control.Geocoder.nominatim().geocode(to, function(results) {
-        if (results.length > 0) {
-          const toCoord = results[0].center;
-          control.setWaypoints([userLocation, toCoord]);
-        } else {
-          alert("Destination not found.");
-        }
-      });
-
-      // Step-by-step instructions
-      control.on('routesfound', function(e) {
-        const stepsDiv = document.getElementById("steps");
-        stepsDiv.innerHTML = "";
-        const route = e.routes[0];
-        currentRoute = route;
-
-        route.instructions.forEach(step => {
-          stepsDiv.innerHTML += `<p>➡️ ${step.text}</p>`;
-        });
-      });
-    }
-
-    // Zoom to full route
-    function viewRoute() {
-      if (currentRoute) {
-        map.fitBounds(L.Routing.line(currentRoute).getBounds());
-      } else {
-        alert("No route to view. Get a route first!");
-      }
-    }
-
-    // Start live navigation
-    function startNavigation() {
-      if (!currentRoute) {
-        alert("Please get a route first.");
-        return;
-      }
-      navMode = true;
-      if (watchId) navigator.geolocation.clearWatch(watchId);
-
-      watchId = navigator.geolocation.watchPosition(pos => {
-        const newLoc = L.latLng(pos.coords.latitude, pos.coords.longitude);
-        userLocation = newLoc;
-
-        if (userMarker) map.removeLayer(userMarker);
-        userMarker = L.marker(newLoc, { icon: L.icon({
-          iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-          iconSize: [25,25]
-        }) }).addTo(map);
-
-        if (navMode) {
-          map.setView(newLoc, 16, { animate: true });
-        }
-      }, () => {
-        alert("Could not track your location");
-      }, { enableHighAccuracy: true });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
