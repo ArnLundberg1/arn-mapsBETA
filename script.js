@@ -20,7 +20,7 @@ function initMap() {
   map = L.map("map", { zoomControl: true }).setView([59.3293, 18.0686], 13);
   lightTiles.addTo(map);
 
-  // Klick för att sätta destination
+  // Klick för att välja destination
   map.on("click", async (e) => {
     const lat = e.latlng.lat;
     const lon = e.latlng.lng;
@@ -28,10 +28,17 @@ function initMap() {
     showDestination(lat, lon, label);
   });
 
-  // Lyssna på sökning
+  // Lyssna på sökfält
   document.getElementById("searchBox").addEventListener("input", handleSearch);
 
   requestLocationPermission();
+
+  // Stäng förslag om man klickar utanför
+  document.addEventListener("click", (e) => {
+    if (!document.getElementById("searchContainer").contains(e.target)) {
+      document.getElementById("suggestions").style.display = "none";
+    }
+  });
 }
 
 // Toggle recenter
@@ -48,7 +55,7 @@ function toggleRecenter() {
   }
 }
 
-// Toggle dark/light
+// Toggle dark/light mode
 function toggleMode() {
   darkMode = !darkMode;
   const btn = document.getElementById("modeBtn");
@@ -129,6 +136,7 @@ async function getAddress(lat, lon) {
 // Visa destination
 function showDestination(lat, lon, label) {
   if (destinationMarker) destinationMarker.remove();
+  if (routingControl) map.removeControl(routingControl);
 
   destinationMarker = L.marker([lat, lon]).addTo(map);
   destinationMarker.bindPopup(`
