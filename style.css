@@ -1,7 +1,10 @@
 /* Reset */
-body, html {
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+html, body {
   height: 100%;
   font-family: "Helvetica Neue", Arial, sans-serif;
 }
@@ -13,129 +16,117 @@ body, html {
   z-index: 0;
 }
 
-/* Search bar */
-#searchBar {
+/* Top search bar */
+#topBar {
   position: absolute;
   top: 15px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  width: 80%;
-  max-width: 500px;
+  width: 90%;
+  max-width: 600px;
   background: white;
-  border-radius: 30px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
   padding: 5px 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   z-index: 1000;
 }
-
-#searchBar input {
+#topBar input {
   flex: 1;
   border: none;
   outline: none;
   font-size: 16px;
-  padding: 8px;
-  border-radius: 20px;
+  padding: 10px;
 }
-
-#searchBar button {
+#topBar button {
   background: none;
   border: none;
   cursor: pointer;
   padding: 6px;
-  border-radius: 50%;
+}
+#topBar img {
+  width: 24px;
+  height: 24px;
 }
 
-#searchBar button:hover {
-  background: rgba(0,0,0,0.05);
-}
-
-#searchBar img {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-}
-
-/* Floating buttons (FABs) */
+/* Floating Action Buttons */
 #fabMenu {
   position: absolute;
-  bottom: 20px;
+  bottom: 100px;
   right: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   z-index: 1000;
 }
-
-#fabMenu button {
+.fab {
   background: white;
   border: none;
   border-radius: 50%;
   width: 55px;
   height: 55px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s ease;
 }
-
-#fabMenu button:hover {
-  background: rgba(0,0,0,0.05);
+.fab:hover {
+  background: rgba(0,0,0,0.1);
 }
-
-#fabMenu img {
+.fab img {
   width: 26px;
   height: 26px;
-  object-fit: contain;
 }
 
-/* Directions Panel */
+/* Directions panel (bottom sheet) */
 #directionsPanel {
   position: absolute;
-  bottom: 90px;
-  left: 10px;
-  right: 10px;
-  max-height: 40%;
-  overflow-y: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 50%;
   background: white;
-  border-radius: 15px 15px 0 0;
+  border-radius: 20px 20px 0 0;
   padding: 15px;
-  box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
 }
-
+#directionsPanel.collapsed {
+  transform: translateY(65%);
+}
+#panelHeader {
+  width: 40px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 10px;
+  align-self: center;
+  margin-bottom: 10px;
+  cursor: grab;
+}
 #directionsPanel h2 {
-  margin: 0 0 10px 0;
   font-size: 18px;
-  font-weight: bold;
+  margin-bottom: 10px;
 }
-
-#steps p {
-  margin: 8px 0;
+#steps {
+  flex: 1;
+  overflow-y: auto;
   font-size: 14px;
   color: #333;
 }
 
 /* Dark Mode */
-body.dark #searchBar,
-body.dark #fabMenu button,
+body.dark #topBar,
+body.dark .fab,
 body.dark #directionsPanel {
   background: #2b2b2b;
   color: #f5f5f5;
 }
-
-body.dark #searchBar input {
-  color: #f5f5f5;
-  background: transparent;
-}
-
-body.dark #steps p {
+body.dark #steps {
   color: #ddd;
-}
-
-body.dark #fabMenu button:hover,
-body.dark #searchBar button:hover {
-  background: rgba(255,255,255,0.1);
 }
