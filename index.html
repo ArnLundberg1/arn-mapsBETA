@@ -12,15 +12,21 @@ DETTA ÄR FORTFARANDE EN BETA VERSION - THIS IS STILL A BETA VERSION
 <body>
   <div id="map"></div>
 
-  <!-- UI-knappar -->
-  <div id="controls">
+  <!-- Sökbar i toppen -->
+  <div id="searchContainer">
     <input type="text" id="searchBox" placeholder="Search location...">
     <ul id="suggestions"></ul>
-    <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
-    <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
   </div>
 
-  <!-- Popup för platsinformation -->
+  <!-- Mode-knapp (uppe till vänster) -->
+  <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
+
+  <!-- Recenter-knapp (nere i mitten) -->
+  <div id="bottomControls">
+    <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
+  </div>
+
+  <!-- Popup om plats nekas -->
   <div id="locationPopup">
     <div class="popup-content">
       <p>
