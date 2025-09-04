@@ -28,7 +28,8 @@ html, body {
   font-size: 16px;
 }
 
-#suggestions {
+/* Förslag & senaste sökningar */
+#suggestions, #recentSearches {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -43,12 +44,12 @@ html, body {
   z-index: 1600;
 }
 
-#suggestions li {
+#suggestions li, #recentSearches li {
   padding: 10px;
   cursor: pointer;
 }
 
-#suggestions li:hover {
+#suggestions li:hover, #recentSearches li:hover {
   background: #f0f0f0;
 }
 
@@ -112,4 +113,47 @@ html, body {
   border-radius: 12px;
   text-align: center;
   max-width: 400px;
-  box-shadow: 0 4px 12
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#locationPopup button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #007bff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Dark mode */
+body.dark {
+  background: #181818;
+  color: #eee;
+}
+
+body.dark #searchBox,
+body.dark #suggestions,
+body.dark #recentSearches {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+body.dark #suggestions li:hover,
+body.dark #recentSearches li:hover {
+  background: #444;
+}
+
+body.dark #modeBtn,
+body.dark #recenterBtn {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+body.dark #recenterBtn.active {
+  background: #ff9500;
+  color: #000;
+}
