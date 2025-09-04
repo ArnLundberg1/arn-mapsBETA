@@ -1,92 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Navigation</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
-  <!-- Google Maps JS (Places for autocomplete) -->
-  <script async src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No-API Maps App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
 </head>
 <body>
-  <!-- Top Bar -->
+  <!-- Top Search Bar -->
   <div id="topBar">
-    <button id="menuBtn" class="iconBtn" title="Options">
-      <img src="https://img.icons8.com/ios-filled/50/settings--v1.png" alt="Options">
-    </button>
-
-    <input id="destination" type="text" placeholder="Search destination" autocomplete="off" />
-    <button id="micBtn" class="iconBtn" title="Voice Search">
-      <img src="https://img.icons8.com/ios-filled/50/microphone.png" alt="Mic">
-    </button>
-    <button id="searchBtn" class="iconBtn" title="Search">
-      <img src="https://img.icons8.com/ios-filled/50/search--v1.png" alt="Search">
-    </button>
+    <button id="searchBtn"><img src="https://img.icons8.com/ios-filled/50/search.png" alt="Search"></button>
+    <input type="text" id="searchInput" placeholder="Search location...">
+    <button id="micBtn"><img src="https://img.icons8.com/ios-filled/50/microphone.png" alt="Mic"></button>
   </div>
 
   <!-- Map -->
   <div id="map"></div>
 
-  <!-- Floating Action Buttons -->
+  <!-- Floating Buttons -->
   <div id="fabMenu">
-    <button class="fab" id="gpsBtn" title="My Location">
-      <img src="https://img.icons8.com/ios-filled/50/navigation.png" alt="GPS">
-    </button>
-    <button class="fab" id="recenterBtn" title="Recenter">
-      <img src="https://img.icons8.com/ios-filled/50/center-direction.png" alt="Recenter">
-    </button>
-    <button class="fab" id="clearBtn" title="Clear Route">
-      <img src="https://img.icons8.com/ios-filled/50/delete-sign.png" alt="Clear">
-    </button>
-    <button class="fab" id="darkModeBtn" title="Toggle Dark Mode">
-      <img id="themeIcon" src="https://img.icons8.com/ios-filled/50/do-not-disturb-2.png" alt="Theme">
-    </button>
+    <button class="fab" id="locateBtn"><img src="https://img.icons8.com/ios-filled/50/marker.png" alt="Locate"></button>
+    <button class="fab" id="darkModeBtn"><img src="https://img.icons8.com/ios-filled/50/brightness.png" alt="Dark Mode"></button>
   </div>
 
-  <!-- Bottom Sheet: Directions -->
+  <!-- Bottom Directions Panel -->
   <div id="directionsPanel" class="collapsed">
     <div id="panelHeader"></div>
-    <div id="summaryRow">
-      <div id="routeSummary">Search for a place to start.</div>
-      <div id="unitToggle">
-        <label><input type="radio" name="units" value="METRIC" checked> km</label>
-        <label><input type="radio" name="units" value="IMPERIAL"> mi</label>
-      </div>
-    </div>
-
-    <!-- Mode Tabs -->
-    <div id="modeTabs">
-      <button data-mode="DRIVING" class="mode active" title="Driving">
-        <img src="https://img.icons8.com/ios-filled/50/car--v1.png" alt="Drive">
-      </button>
-      <button data-mode="WALKING" class="mode" title="Walking">
-        <img src="https://img.icons8.com/ios-filled/50/walking.png" alt="Walk">
-      </button>
-      <button data-mode="BICYCLING" class="mode" title="Cycling">
-        <img src="https://img.icons8.com/ios-filled/50/bicycle.png" alt="Bike">
-      </button>
-      <button data-mode="TRANSIT" class="mode" title="Transit">
-        <img src="https://img.icons8.com/ios-filled/50/tram.png" alt="Transit">
-      </button>
-    </div>
-
-    <!-- Options -->
-    <div id="routeOptions">
-      <label><input type="checkbox" id="avoidTolls"> Avoid tolls</label>
-      <label><input type="checkbox" id="avoidHighways"> Avoid highways</label>
-      <label><input type="checkbox" id="voiceGuidance"> Voice guidance</label>
-    </div>
-
-    <!-- Steps -->
-    <div id="steps"></div>
+    <h2>Route</h2>
+    <div id="steps">No route yet. Select two locations.</div>
   </div>
 
-  <!-- Slide-out simple menu (for future) -->
-  <div id="sideMenu" class="hidden">
-    <h3>Preferences</h3>
-    <p>Defaults are saved automatically.</p>
-    <button id="closeMenu" class="pill">Close</button>
-  </div>
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
