@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Maps App</title>
+  <title>Live GPS Navigation</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
@@ -12,8 +12,7 @@
   <!-- Top Search Bar -->
   <div id="topBar">
     <button id="searchBtn"><img src="https://img.icons8.com/ios-filled/50/search.png" alt="Search"></button>
-    <input type="text" id="searchInput" placeholder="Search location...">
-    <button id="micBtn"><img src="https://img.icons8.com/ios-filled/50/microphone.png" alt="Mic"></button>
+    <input type="text" id="searchInput" placeholder="Search destination...">
   </div>
 
   <!-- Map -->
@@ -28,7 +27,7 @@
   <!-- Bottom Directions Panel -->
   <div id="directionsPanel" class="collapsed">
     <h2>Route</h2>
-    <div id="steps">No destination yet. Search or click to start.</div>
+    <div id="steps">No destination set yet.</div>
   </div>
 
   <!-- Scripts -->
