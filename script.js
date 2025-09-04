@@ -3,9 +3,8 @@ let userMarker;
 let userPosition;
 let destinationMarker;
 let routingControl;
-let followUser = true;
+let followUser = false; // default OFF
 
-// Initiera kartan
 function initMap() {
   map = L.map("map").setView([59.3293, 18.0686], 13); // Default Stockholm
 
@@ -13,7 +12,7 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  // Klick på kartan för att välja destination
+  // Klicka på kartan för att välja destination
   map.on("click", async (e) => {
     const lat = e.latlng.lat;
     const lon = e.latlng.lng;
@@ -24,7 +23,21 @@ function initMap() {
   requestLocationPermission();
 }
 
-// Hämta användarens plats
+// Toggle recenter-knappen
+function toggleRecenter() {
+  followUser = !followUser;
+  const btn = document.getElementById("recenterBtn");
+  if (followUser) {
+    btn.textContent = "Recenter: ON";
+    btn.classList.add("active");
+    if (userPosition) map.setView(userPosition, 15);
+  } else {
+    btn.textContent = "Recenter: OFF";
+    btn.classList.remove("active");
+  }
+}
+
+// Begär platsinformation
 function requestLocationPermission() {
   document.getElementById("locationPopup").style.display = "none";
 
@@ -48,7 +61,7 @@ function requestLocationPermission() {
   }
 }
 
-// Uppdatera användarens position på kartan
+// Uppdatera användarens position
 function updateUserPosition(position) {
   userPosition = [position.coords.latitude, position.coords.longitude];
 
@@ -70,13 +83,13 @@ function updateUserPosition(position) {
   }
 }
 
-// Hantera platsfel
+// Om plats nekas
 function handleLocationError(err) {
   console.warn("GPS error:", err.message);
   document.getElementById("locationPopup").style.display = "flex";
 }
 
-// Hämta adress via Nominatim
+// Hämta adress från Nominatim
 async function getAddress(lat, lon) {
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
@@ -87,7 +100,7 @@ async function getAddress(lat, lon) {
   }
 }
 
-// Visa destination + startknapp
+// Visa destination och knapp
 function showDestination(lat, lon, label) {
   if (destinationMarker) destinationMarker.remove();
 
@@ -103,7 +116,7 @@ function showDestination(lat, lon, label) {
   `).openPopup();
 }
 
-// Starta en rutt från användarens position
+// Starta rutt från användaren → destination
 function startRoute(destLat, destLon) {
   if (!userPosition) {
     alert("Din position är inte tillgänglig ännu.");
