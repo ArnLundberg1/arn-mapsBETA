@@ -14,16 +14,23 @@
 </head>
 <body>
   <div id="controls">
-    <input id="to" type="text" placeholder="Enter destination (e.g. Stockholm)">
-    <button id="locBtn">📍 My Location</button>
-    <button id="viewBtn">🔍 View Route</button>
-    <button id="navBtn">▶️ Start Navigation</button>
+    <select id="language"></select>
+    <input id="to" type="text" placeholder="">
+    <button id="locBtn">
+      <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Location">
+    </button>
+    <button id="viewBtn">
+      <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Route">
+    </button>
+    <button id="navBtn">
+      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Navigation">
+    </button>
   </div>
 
   <div id="map"></div>
 
   <div id="directions">
-    <b>Directions</b>
+    <b id="directionsTitle"></b>
     <hr>
     <div id="steps"></div>
   </div>
