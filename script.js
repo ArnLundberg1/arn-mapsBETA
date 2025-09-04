@@ -94,7 +94,7 @@ function setDestination(lat, lon, label) {
 
   if (routeUpdater) clearInterval(routeUpdater);
 
-  // Update route every 5s
+  // Update route every 2s
   routeUpdater = setInterval(() => {
     if (userPos) {
       routingControl.setWaypoints([
@@ -102,7 +102,7 @@ function setDestination(lat, lon, label) {
         L.latLng(lat, lon)
       ]);
     }
-  }, 5000);
+  }, 2000);
 
   // Do initial route immediately
   if (userPos) {
@@ -135,9 +135,9 @@ function startTracking() {
       userCircle = L.circle([lat, lon], { radius: pos.coords.accuracy }).addTo(map);
     }
 
-    // Auto-follow
+    // Auto-follow user movement
     map.setView([lat, lon], 16);
-  }, err => console.error(err), { enableHighAccuracy: true });
+  }, err => console.error(err), { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
 }
 
 initMap();
