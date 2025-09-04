@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation Maps System</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; }
+    #map { height:100vh; width:100%; }
+    #controls {
+      position: absolute;
+      top: 10px; left: 50%; transform: translateX(-50%);
+      background: white; padding: 10px;
+      border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index:1000; display:flex; gap:5px;
+    }
+    input { padding:6px; border:1px solid #ccc; border-radius:6px; }
+    button {
+      padding:6px 12px; border:none; border-radius:6px;
+      background:#007BFF; color:white; cursor:pointer;
+    }
+    button:hover { background:#0056b3; }
+    #directions {
+      position:absolute; right:10px; top:10px; bottom:10px;
+      width:280px; overflow:auto; background:white;
+      border-radius:10px; padding:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      z-index:999;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <input id="to" type="text" placeholder="Destination (t.ex. Stockholm)">
+    <button onclick="useMyLocation()">📍 Använd min plats</button>
+    <button onclick="getRoute()">Visa rutt</button>
+  </div>
+  <div id="map"></div>
+  <div id="directions"><b>Vägbeskrivning</b><hr><div id="steps"></div></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <script>
+    // Init map
+    const map = L.map('map').setView([59.3293, 18.0686], 6); // Start over Sweden
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let userLocation = null;
+    let control = null;
+
+    // Try to get GPS
+    function useMyLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          userLocation = L.latLng(pos.coords.latitude, pos.coords.longitude);
+          L.marker(userLocation).addTo(map).bindPopup("Du är här").openPopup();
+          map.setView(userLocation, 13);
+        }, () => alert("Kunde inte hämta din plats"));
+      } else {
+        alert("Din webbläsare stöder inte GPS");
+      }
+    }
+
+    // Build route
+    function getRoute() {
+      const to = document.getElementById("to").value;
+
+      if (!userLocation) {
+        alert("Använd först GPS-knappen för att hämta din startplats!");
+        return;
+      }
+
+      if (control) { map.removeControl(control); }
+
+      control = L.Routing.control({
+        waypoints: [ userLocation ],
+        router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
+        geocoder: L.Control.Geocoder.nominatim(),
+        show: false,
+        routeWhileDragging: false,
+        createMarker: (i, wp, nWps) => {
+          return L.marker(wp.latLng, { draggable: false });
+        }
+      }).addTo(map);
+
+      // Geocode destination
+      L.Control.Geocoder.nominatim().geocode(to, function(results) {
+        if (results.length > 0) {
+          const toCoord = results[0].center;
+          control.setWaypoints([userLocation, toCoord]);
+        } else {
+          alert("Destinationen hittades inte.");
+        }
+      });
+
+      // Show step-by-step instructions
+      control.on('routesfound', function(e) {
+        const stepsDiv = document.getElementById("steps");
+        stepsDiv.innerHTML = "";
+        const routes = e.routes[0].instructions || e.routes[0].segments;
+
+        e.routes[0].instructions.forEach(step => {
+          stepsDiv.innerHTML += `<p>${step.text}</p>`;
+        });
+      });
+    }
+  </script>
+</body>
+</html>
