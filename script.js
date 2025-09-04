@@ -3,16 +3,24 @@ let userMarker;
 let userPosition;
 let destinationMarker;
 let routingControl;
-let followUser = false; // default OFF
+let followUser = false;
+let darkMode = false;
 
+// Tile-lager
+const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors"
+});
+
+const darkTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
+});
+
+// Initiera karta
 function initMap() {
-  map = L.map("map").setView([59.3293, 18.0686], 13); // Default Stockholm
+  map = L.map("map", { zoomControl: true }).setView([59.3293, 18.0686], 13);
+  lightTiles.addTo(map);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  // Klicka på kartan för att välja destination
+  // Klick för att sätta destination
   map.on("click", async (e) => {
     const lat = e.latlng.lat;
     const lon = e.latlng.lng;
@@ -20,24 +28,44 @@ function initMap() {
     showDestination(lat, lon, label);
   });
 
+  // Lyssna på sökning
+  document.getElementById("searchBox").addEventListener("input", handleSearch);
+
   requestLocationPermission();
 }
 
-// Toggle recenter-knappen
+// Toggle recenter
 function toggleRecenter() {
   followUser = !followUser;
   const btn = document.getElementById("recenterBtn");
   if (followUser) {
-    btn.textContent = "Recenter: ON";
+    btn.textContent = "📍 Recenter: ON";
     btn.classList.add("active");
     if (userPosition) map.setView(userPosition, 15);
   } else {
-    btn.textContent = "Recenter: OFF";
+    btn.textContent = "📍 Recenter: OFF";
     btn.classList.remove("active");
   }
 }
 
-// Begär platsinformation
+// Toggle dark/light
+function toggleMode() {
+  darkMode = !darkMode;
+  const btn = document.getElementById("modeBtn");
+  if (darkMode) {
+    document.body.classList.add("dark");
+    map.removeLayer(lightTiles);
+    darkTiles.addTo(map);
+    btn.textContent = "☀️ Light Mode";
+  } else {
+    document.body.classList.remove("dark");
+    map.removeLayer(darkTiles);
+    lightTiles.addTo(map);
+    btn.textContent = "🌙 Dark Mode";
+  }
+}
+
+// Platsåtkomst
 function requestLocationPermission() {
   document.getElementById("locationPopup").style.display = "none";
 
@@ -48,7 +76,6 @@ function requestLocationPermission() {
       { enableHighAccuracy: true }
     );
 
-    // Uppdatera varannan sekund
     setInterval(() => {
       navigator.geolocation.getCurrentPosition(
         updateUserPosition,
@@ -71,7 +98,6 @@ function updateUserPosition(position) {
       iconSize: [40, 40],
       iconAnchor: [20, 20]
     });
-
     userMarker = L.marker(userPosition, { icon: arrowIcon }).addTo(map);
     map.setView(userPosition, 15);
   } else {
@@ -83,13 +109,13 @@ function updateUserPosition(position) {
   }
 }
 
-// Om plats nekas
+// Hantera fel
 function handleLocationError(err) {
   console.warn("GPS error:", err.message);
   document.getElementById("locationPopup").style.display = "flex";
 }
 
-// Hämta adress från Nominatim
+// Hämta adress
 async function getAddress(lat, lon) {
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
@@ -100,7 +126,7 @@ async function getAddress(lat, lon) {
   }
 }
 
-// Visa destination och knapp
+// Visa destination
 function showDestination(lat, lon, label) {
   if (destinationMarker) destinationMarker.remove();
 
@@ -116,7 +142,7 @@ function showDestination(lat, lon, label) {
   `).openPopup();
 }
 
-// Starta rutt från användaren → destination
+// Starta rutt
 function startRoute(destLat, destLon) {
   if (!userPosition) {
     alert("Din position är inte tillgänglig ännu.");
@@ -137,6 +163,39 @@ function startRoute(destLat, destLon) {
     draggableWaypoints: false,
     createMarker: () => null
   }).addTo(map);
+}
+
+// Hantera sökning
+async function handleSearch(e) {
+  const query = e.target.value.trim();
+  const suggestionsList = document.getElementById("suggestions");
+
+  if (!query) {
+    suggestionsList.style.display = "none";
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+    const data = await res.json();
+
+    suggestionsList.innerHTML = "";
+    data.forEach(place => {
+      const li = document.createElement("li");
+      li.textContent = place.display_name;
+      li.onclick = () => {
+        showDestination(place.lat, place.lon, place.display_name);
+        suggestionsList.style.display = "none";
+        document.getElementById("searchBox").value = place.display_name;
+      };
+      suggestionsList.appendChild(li);
+    });
+
+    suggestionsList.style.display = data.length ? "block" : "none";
+  } catch (err) {
+    console.error("Search error:", err);
+    suggestionsList.style.display = "none";
+  }
 }
 
 window.onload = initMap;
