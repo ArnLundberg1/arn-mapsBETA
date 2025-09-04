@@ -5,7 +5,7 @@ let recentSearches = [];
 let travelMode = "car"; // default bil
 
 // OpenRouteService API key (valfri, för cykel/gång/bil)
-const ORS_API_KEY = "YOUR_ORS_API_KEY"; 
+const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjE4ZWM0ZDZmNWZkNjQzZThiYzcwOTI0NjlmOWRmYmFhIiwiaCI6Im11cm11cjY0In0="; 
 
 function initMap() {
   map = L.map("map").setView([59.3293, 18.0686], 13);
