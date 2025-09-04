@@ -3,11 +3,12 @@ let followUser = true;
 let currentPosition = null;
 let destination = null;
 let arrowMarker = null;
+let simulate = false; // toggle for test mode
 
 function initMap() {
   map = L.map("map").setView([59.3293, 18.0686], 13); // fallback: Stockholm
 
-  // Light + dark mode layers
+  // Light + dark tiles
   const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
   }).addTo(map);
@@ -34,12 +35,17 @@ function initMap() {
   document.getElementById("locateBtn").addEventListener("click", () => {
     if (currentPosition) {
       map.setView(currentPosition, 16);
+    } else {
+      map.locate({ setView: true, maxZoom: 16 });
     }
   });
 
   // Toggle follow
   document.getElementById("followBtn").addEventListener("click", () => {
     followUser = !followUser;
+    if (followUser && currentPosition) {
+      map.setView(currentPosition, 16);
+    }
   });
 
   // Search
@@ -48,10 +54,11 @@ function initMap() {
     if (e.key === "Enter") searchLocation();
   });
 
-  // Start live GPS tracking
+  // Try GPS
   startTracking();
 }
 
+// GPS tracking
 function startTracking() {
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
@@ -60,7 +67,7 @@ function startTracking() {
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
     );
   } else {
-    alert("Din webbläsare stödjer inte GPS.");
+    handleLocationError({ message: "Din webbläsare stödjer inte GPS." });
   }
 }
 
@@ -105,7 +112,26 @@ function updateUserPosition(position) {
 }
 
 function handleLocationError(err) {
-  alert("Kunde inte hämta plats: " + err.message);
+  console.warn("GPS error:", err.message);
+  alert("❌ Kunde inte hämta din plats: " + err.message + "\n\nAktivera platsåtkomst i webbläsaren.");
+
+  // Activate simulation for testing
+  if (!simulate) {
+    simulate = true;
+    simulateMovement();
+  }
+}
+
+// Simulate movement (for testing on desktop without GPS)
+function simulateMovement() {
+  let lat = 59.3293;
+  let lon = 18.0686;
+
+  setInterval(() => {
+    lat += (Math.random() - 0.5) * 0.001;
+    lon += (Math.random() - 0.5) * 0.001;
+    updateUserPosition({ coords: { latitude: lat, longitude: lon, heading: Math.random() * 360 } });
+  }, 2000);
 }
 
 async function searchLocation() {
@@ -143,7 +169,7 @@ function showDestination(lat, lon, label) {
 }
 
 function startRoute(lat, lon) {
-  if (!currentPosition) {
+  if (!currentPosition && !simulate) {
     alert("Din nuvarande position hittades inte än!");
     return;
   }
