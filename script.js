@@ -1,9 +1,11 @@
 let map, routingControl;
 let darkMode = false;
+let waypoints = []; // stores start + end
+let markers = [];
 
 // Init map
 function initMap() {
-  map = L.map("map").setView([59.3293, 18.0686], 13); // Default: Stockholm
+  map = L.map("map").setView([59.3293, 18.0686], 13); // Default Stockholm
 
   // Base layers
   const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -33,15 +35,16 @@ function initMap() {
     map.locate({ setView: true, maxZoom: 16 });
   });
 
-  // Routing
+  // Routing control (hidden UI)
   routingControl = L.Routing.control({
     waypoints: [],
-    routeWhileDragging: true,
-    geocoder: L.Control.Geocoder.nominatim(),
-    showAlternatives: true
+    addWaypoints: false,
+    draggableWaypoints: false,
+    createMarker: () => null, // Hide default markers
+    routeWhileDragging: false
   }).addTo(map);
 
-  routingControl.on("routesfound", function(e) {
+  routingControl.on("routesfound", function (e) {
     const routes = e.routes[0].instructions;
     const stepsDiv = document.getElementById("steps");
     stepsDiv.innerHTML = "";
@@ -52,7 +55,7 @@ function initMap() {
     });
   });
 
-  // Search
+  // Search button
   document.getElementById("searchBtn").addEventListener("click", () => {
     const query = document.getElementById("searchInput").value;
     if (!query) return;
@@ -61,20 +64,60 @@ function initMap() {
       .then(data => {
         if (data && data.length > 0) {
           const place = data[0];
+          addMarker([place.lat, place.lon], place.display_name);
           map.setView([place.lat, place.lon], 14);
-          L.marker([place.lat, place.lon]).addTo(map)
-            .bindPopup(place.display_name)
-            .openPopup();
         }
       });
   });
 
-  // Panel drag collapse/expand
+  // Map click = add marker with route option
+  map.on("click", (e) => {
+    addMarker([e.latlng.lat, e.latlng.lng], "Custom location");
+  });
+
+  // Panel collapse/expand
   const panel = document.getElementById("directionsPanel");
   const header = document.getElementById("panelHeader");
   header.addEventListener("click", () => {
     panel.classList.toggle("collapsed");
   });
+}
+
+// Add marker with popup "Start Route" / "End Route"
+function addMarker(coords, name) {
+  const marker = L.marker(coords).addTo(map);
+  markers.push(marker);
+
+  const popupContent = document.createElement("div");
+  popupContent.innerHTML = `<strong>${name}</strong><br>`;
+
+  const startBtn = document.createElement("button");
+  startBtn.textContent = "Start Route";
+  startBtn.style.margin = "5px";
+  startBtn.onclick = () => setWaypoint(coords, "start");
+
+  const endBtn = document.createElement("button");
+  endBtn.textContent = "End Route";
+  endBtn.style.margin = "5px";
+  endBtn.onclick = () => setWaypoint(coords, "end");
+
+  popupContent.appendChild(startBtn);
+  popupContent.appendChild(endBtn);
+
+  marker.bindPopup(popupContent).openPopup();
+}
+
+// Assign waypoints
+function setWaypoint(coords, type) {
+  if (type === "start") {
+    waypoints[0] = L.latLng(coords[0], coords[1]);
+  } else if (type === "end") {
+    waypoints[1] = L.latLng(coords[0], coords[1]);
+  }
+
+  if (waypoints[0] && waypoints[1]) {
+    routingControl.setWaypoints(waypoints);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", initMap);
