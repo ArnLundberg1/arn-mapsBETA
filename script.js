@@ -2,8 +2,9 @@ let map, routingControl;
 let darkMode = false;
 let userMarker = null;
 let userCircle = null;
-let destination = null;
 let userPos = null;
+let destination = null;
+let routeUpdater = null;
 
 // Init map
 function initMap() {
@@ -31,12 +32,14 @@ function initMap() {
     darkMode = !darkMode;
   });
 
-  // Locate once
+  // Locate button
   document.getElementById("locateBtn").addEventListener("click", () => {
-    map.locate({ setView: true, maxZoom: 16 });
+    if (userPos) {
+      map.setView([userPos.lat, userPos.lng], 16);
+    }
   });
 
-  // Routing (no built-in UI)
+  // Routing (hidden UI)
   routingControl = L.Routing.control({
     waypoints: [],
     addWaypoints: false,
@@ -56,7 +59,7 @@ function initMap() {
     document.getElementById("directionsPanel").classList.remove("collapsed");
   });
 
-  // Search
+  // Search for destination
   document.getElementById("searchBtn").addEventListener("click", () => {
     const query = document.getElementById("searchInput").value;
     if (!query) return;
@@ -68,33 +71,45 @@ function initMap() {
           const place = data[0];
           const lat = parseFloat(place.lat);
           const lon = parseFloat(place.lon);
-          map.setView([lat, lon], 14);
-
-          if (destination) destination.remove();
-
-          destination = L.marker([lat, lon]).addTo(map);
-          destination.bindPopup(`<b>${place.display_name}</b><br><button onclick="setDestination(${lat}, ${lon})">Start Route</button>`).openPopup();
+          setDestination(lat, lon, place.display_name);
         }
       });
   });
 
-  // Click map to add destination
+  // Click to set destination
   map.on("click", e => {
-    const { lat, lng } = e.latlng;
-    if (destination) destination.remove();
-
-    destination = L.marker([lat, lng]).addTo(map);
-    destination.bindPopup(`<b>Custom Point</b><br><button onclick="setDestination(${lat}, ${lng})">Start Route</button>`).openPopup();
+    setDestination(e.latlng.lat, e.latlng.lng, "Custom Point");
   });
 
-  // Start live GPS tracking
+  // Start tracking user
   startTracking();
 }
 
 // Set destination
-function setDestination(lat, lon) {
+function setDestination(lat, lon, label) {
+  if (destination) destination.remove();
+
+  destination = L.marker([lat, lon]).addTo(map);
+  destination.bindPopup(`<b>${label}</b>`).openPopup();
+
+  if (routeUpdater) clearInterval(routeUpdater);
+
+  // Update route every 5s
+  routeUpdater = setInterval(() => {
+    if (userPos) {
+      routingControl.setWaypoints([
+        L.latLng(userPos.lat, userPos.lng),
+        L.latLng(lat, lon)
+      ]);
+    }
+  }, 5000);
+
+  // Do initial route immediately
   if (userPos) {
-    routingControl.setWaypoints([L.latLng(userPos.lat, userPos.lng), L.latLng(lat, lon)]);
+    routingControl.setWaypoints([
+      L.latLng(userPos.lat, userPos.lng),
+      L.latLng(lat, lon)
+    ]);
   }
 }
 
@@ -120,13 +135,8 @@ function startTracking() {
       userCircle = L.circle([lat, lon], { radius: pos.coords.accuracy }).addTo(map);
     }
 
-    // Auto follow when moving
+    // Auto-follow
     map.setView([lat, lon], 16);
-
-    // Update route automatically if destination exists
-    if (destination) {
-      setDestination(destination.getLatLng().lat, destination.getLatLng().lng);
-    }
   }, err => console.error(err), { enableHighAccuracy: true });
 }
 
