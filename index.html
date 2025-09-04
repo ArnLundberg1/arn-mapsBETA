@@ -4,29 +4,28 @@
   <meta charset="UTF-8">
   <title>Navigation System</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- Sökbar i toppen -->
+  <!-- Sökbar -->
   <div id="searchContainer">
     <input type="text" id="searchBox" placeholder="Search location...">
     <ul id="suggestions"></ul>
     <ul id="recentSearches"></ul>
   </div>
 
-  <!-- Mode-knapp (uppe till vänster) -->
+  <!-- Dark/Light mode -->
   <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
 
-  <!-- Recenter-knapp (nere i mitten) -->
+  <!-- Kontroller längst ner -->
   <div id="bottomControls">
     <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
+    <button id="modeSelectBtn" onclick="openModePopup()">🛣️ Färdsätt</button>
   </div>
 
-  <!-- Popup om plats nekas -->
+  <!-- Popup för platsinfo -->
   <div id="locationPopup">
     <div class="popup-content">
       <p>
@@ -37,7 +36,19 @@
     </div>
   </div>
 
-  <!-- Leaflet JS -->
+  <!-- Popup för färdsätt -->
+  <div id="modePopup">
+    <div class="popup-content">
+      <h3>Välj färdsätt</h3>
+      <button onclick="setTravelMode('car')">🚗 Bil</button>
+      <button onclick="setTravelMode('bike')">🚲 Cykel</button>
+      <button onclick="setTravelMode('foot')">🚶 Gå</button>
+      <button onclick="setTravelMode('bus')">🚌 Buss (Sthlm/Gbg)</button>
+      <br><br>
+      <button onclick="closeModePopup()">Stäng</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
