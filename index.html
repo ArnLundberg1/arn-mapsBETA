@@ -18,7 +18,7 @@
       width: 100%;
     }
 
-    /* Popup overlay when location is denied */
+    /* Popup overlay när plats nekas */
     #locationPopup {
       position: fixed;
       top: 0;
@@ -31,7 +31,6 @@
       align-items: center;
       z-index: 2000;
     }
-
     #locationPopup .popup-content {
       background: #fff;
       padding: 20px;
@@ -40,7 +39,6 @@
       max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-
     #locationPopup button {
       margin-top: 15px;
       padding: 10px 20px;
@@ -51,12 +49,35 @@
       cursor: pointer;
       font-size: 16px;
     }
+
+    /* Recenter toggle knapp */
+    #recenterBtn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1500;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    #recenterBtn.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- Location Permission Popup -->
+  <!-- Toggle button -->
+  <button id="recenterBtn" onclick="toggleRecenter()">Recenter: OFF</button>
+
+  <!-- Popup för platsinformation -->
   <div id="locationPopup">
     <div class="popup-content">
       <p>
@@ -69,9 +90,7 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Routing machine -->
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-  <!-- Our script -->
   <script src="script.js"></script>
 </body>
 </html>
