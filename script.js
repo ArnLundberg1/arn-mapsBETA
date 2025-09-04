@@ -5,6 +5,7 @@ let destinationMarker;
 let routingControl;
 let followUser = false;
 let darkMode = false;
+let recentSearches = [];
 
 // Tile-lager
 const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -37,8 +38,11 @@ function initMap() {
   document.addEventListener("click", (e) => {
     if (!document.getElementById("searchContainer").contains(e.target)) {
       document.getElementById("suggestions").style.display = "none";
+      document.getElementById("recentSearches").style.display = "none";
     }
   });
+
+  loadRecentSearches();
 }
 
 // Toggle recenter
@@ -148,6 +152,8 @@ function showDestination(lat, lon, label) {
       </button>
     </div>
   `).openPopup();
+
+  saveRecentSearch(label, lat, lon);
 }
 
 // Starta rutt
@@ -177,9 +183,13 @@ function startRoute(destLat, destLon) {
 async function handleSearch(e) {
   const query = e.target.value.trim();
   const suggestionsList = document.getElementById("suggestions");
+  const recentList = document.getElementById("recentSearches");
 
   if (!query) {
     suggestionsList.style.display = "none";
+    if (recentSearches.length) {
+      showRecentSearches();
+    }
     return;
   }
 
@@ -194,6 +204,7 @@ async function handleSearch(e) {
       li.onclick = () => {
         showDestination(place.lat, place.lon, place.display_name);
         suggestionsList.style.display = "none";
+        recentList.style.display = "none";
         document.getElementById("searchBox").value = place.display_name;
       };
       suggestionsList.appendChild(li);
@@ -204,6 +215,39 @@ async function handleSearch(e) {
     console.error("Search error:", err);
     suggestionsList.style.display = "none";
   }
+}
+
+// Spara senaste sökningar
+function saveRecentSearch(label, lat, lon) {
+  recentSearches.unshift({ label, lat, lon });
+  if (recentSearches.length > 5) recentSearches.pop();
+  localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+}
+
+// Ladda senaste sökningar
+function loadRecentSearches() {
+  const saved = localStorage.getItem("recentSearches");
+  if (saved) {
+    recentSearches = JSON.parse(saved);
+  }
+  showRecentSearches();
+}
+
+// Visa senaste sökningar
+function showRecentSearches() {
+  const recentList = document.getElementById("recentSearches");
+  recentList.innerHTML = "";
+  recentSearches.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.label;
+    li.onclick = () => {
+      showDestination(item.lat, item.lon, item.label);
+      recentList.style.display = "none";
+      document.getElementById("searchBox").value = item.label;
+    };
+    recentList.appendChild(li);
+  });
+  recentList.style.display = recentSearches.length ? "block" : "none";
 }
 
 window.onload = initMap;
