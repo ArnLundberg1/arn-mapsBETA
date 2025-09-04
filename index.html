@@ -7,75 +7,17 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-    #map {
-      height: 100%;
-      width: 100%;
-    }
-
-    /* Popup overlay när plats nekas */
-    #locationPopup {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-    #locationPopup .popup-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    #locationPopup button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #007bff;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    /* Recenter toggle knapp */
-    #recenterBtn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      z-index: 1500;
-      background: white;
-      border: 1px solid #ccc;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    #recenterBtn.active {
-      background: #007bff;
-      color: white;
-      border-color: #0056b3;
-    }
-  </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- Toggle button -->
-  <button id="recenterBtn" onclick="toggleRecenter()">Recenter: OFF</button>
+  <!-- UI-knappar -->
+  <div id="controls">
+    <input type="text" id="searchBox" placeholder="Search location...">
+    <ul id="suggestions"></ul>
+    <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
+    <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
+  </div>
 
   <!-- Popup för platsinformation -->
   <div id="locationPopup">
