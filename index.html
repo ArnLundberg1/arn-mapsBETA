@@ -3,42 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Navigation Map</title>
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
-
-  <!-- Custom CSS -->
+  <title>GPS Navigation</title>
   <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="controls">
-    <select id="language"></select>
-    <input id="to" type="text" placeholder="">
-    <button id="locBtn">
-      <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Location">
-    </button>
-    <button id="viewBtn">
-      <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Route">
-    </button>
-    <button id="navBtn">
-      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Navigation">
-    </button>
-  </div>
-
-  <div id="map"></div>
-
-  <div id="directions">
-    <b id="directionsTitle"></b>
-    <hr>
-    <div id="steps"></div>
-  </div>
-
-  <!-- Scripts -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+</head>
+<body>
+  <!-- Search Bar -->
+  <div id="searchBar">
+    <input type="text" id="to" placeholder="Search destination...">
+    <button id="viewBtn">
+      <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png" alt="Search">
+    </button>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div id="fabMenu">
+    <button id="locBtn" title="My Location">
+      <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="My Location">
+    </button>
+    <button id="navBtn" title="Start Navigation">
+      <img src="https://cdn-icons-png.flaticon.com/512/61/61168.png" alt="Navigation">
+    </button>
+    <button id="themeBtn" title="Toggle Theme">
+      <img src="https://cdn-icons-png.flaticon.com/512/1164/1164954.png" alt="Toggle Theme">
+    </button>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- Directions Panel -->
+  <div id="directionsPanel">
+    <h2 id="directionsTitle">Directions</h2>
+    <div id="steps"></div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
