@@ -1,201 +1,146 @@
-let map;
-let userMarker;
-let userPosition;
-let destinationMarker;
-let routingControl;
-let followUser = false;
+// Initiera kartan
+const map = L.map('map').setView([59.3293, 18.0686], 12); // Stockholm default
+
+// Light/Dark tiles
+const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © Carto'
+});
+
 let darkMode = false;
 
-// Tile-lager
-const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "&copy; OpenStreetMap contributors"
-});
-
-const darkTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-  attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
-});
-
-// Initiera karta
-function initMap() {
-  map = L.map("map", { zoomControl: true }).setView([59.3293, 18.0686], 13);
-  lightTiles.addTo(map);
-
-  // Klick för att sätta destination
-  map.on("click", async (e) => {
-    const lat = e.latlng.lat;
-    const lon = e.latlng.lng;
-    const label = await getAddress(lat, lon);
-    showDestination(lat, lon, label);
-  });
-
-  // Lyssna på sökning
-  document.getElementById("searchBox").addEventListener("input", handleSearch);
-
-  requestLocationPermission();
-}
-
-// Toggle recenter
-function toggleRecenter() {
-  followUser = !followUser;
-  const btn = document.getElementById("recenterBtn");
-  if (followUser) {
-    btn.textContent = "📍 Recenter: ON";
-    btn.classList.add("active");
-    if (userPosition) map.setView(userPosition, 15);
-  } else {
-    btn.textContent = "📍 Recenter: OFF";
-    btn.classList.remove("active");
-  }
-}
-
-// Toggle dark/light
-function toggleMode() {
-  darkMode = !darkMode;
-  const btn = document.getElementById("modeBtn");
+// Toggle mellan Light/Dark mode
+document.getElementById("modeToggle").addEventListener("click", () => {
   if (darkMode) {
-    document.body.classList.add("dark");
-    map.removeLayer(lightTiles);
-    darkTiles.addTo(map);
-    btn.textContent = "☀️ Light Mode";
-  } else {
-    document.body.classList.remove("dark");
     map.removeLayer(darkTiles);
     lightTiles.addTo(map);
-    btn.textContent = "🌙 Dark Mode";
+    document.body.classList.remove("dark");
+  } else {
+    map.removeLayer(lightTiles);
+    darkTiles.addTo(map);
+    document.body.classList.add("dark");
   }
-}
+  darkMode = !darkMode;
+});
 
-// Platsåtkomst
-function requestLocationPermission() {
-  document.getElementById("locationPopup").style.display = "none";
+// Position marker
+let userMarker = null;
+let autoRecenter = true;
 
+function updatePosition() {
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      updateUserPosition,
-      handleLocationError,
-      { enableHighAccuracy: true }
-    );
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
 
-    setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        updateUserPosition,
-        handleLocationError,
-        { enableHighAccuracy: true }
-      );
-    }, 2000);
-  } else {
-    alert("Din webbläsare stödjer inte platsinformation.");
-  }
-}
+      if (!userMarker) {
+        userMarker = L.marker([lat, lon], { title: "Du är här" }).addTo(map);
+      } else {
+        userMarker.setLatLng([lat, lon]);
+      }
 
-// Uppdatera användarens position
-function updateUserPosition(position) {
-  userPosition = [position.coords.latitude, position.coords.longitude];
-
-  if (!userMarker) {
-    const arrowIcon = L.icon({
-      iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      if (autoRecenter) {
+        map.setView([lat, lon], 15);
+      }
     });
-    userMarker = L.marker(userPosition, { icon: arrowIcon }).addTo(map);
-    map.setView(userPosition, 15);
-  } else {
-    userMarker.setLatLng(userPosition);
-  }
-
-  if (followUser) {
-    map.setView(userPosition, map.getZoom());
   }
 }
 
-// Hantera fel
-function handleLocationError(err) {
-  console.warn("GPS error:", err.message);
-  document.getElementById("locationPopup").style.display = "flex";
-}
+// Uppdatera var 2 sekunder
+setInterval(updatePosition, 2000);
 
-// Hämta adress
-async function getAddress(lat, lon) {
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-    const data = await res.json();
-    return data.display_name || "Unknown location";
-  } catch (e) {
-    return "Unknown location";
-  }
-}
+// Toggle recenter
+document.getElementById("recenterBtn").addEventListener("click", () => {
+  autoRecenter = !autoRecenter;
+  document.getElementById("recenterBtn").innerText = autoRecenter ? "Recenter ✅" : "Recenter ❌";
+});
 
-// Visa destination
-function showDestination(lat, lon, label) {
-  if (destinationMarker) destinationMarker.remove();
+// Trafikverket API
+const TRAFIKVERKET_API_KEY = "DIN_API_NYCKEL_HÄR"; // byt ut mot egen nyckel
+let trafficMarkers = {}; // lagrar markörer med ID som nyckel
 
-  destinationMarker = L.marker([lat, lon]).addTo(map);
-  destinationMarker.bindPopup(`
-    <div style="min-width:200px;">
-      <p>${label}</p>
-      <button onclick="startRoute(${lat},${lon})"
-        style="margin-top:6px; padding:6px 12px; border:none; background:#007bff; color:white; border-radius:4px; cursor:pointer;">
-        Start Route
-      </button>
-    </div>
-  `).openPopup();
-}
-
-// Starta rutt
-function startRoute(destLat, destLon) {
-  if (!userPosition) {
-    alert("Din position är inte tillgänglig ännu.");
-    return;
-  }
-
-  if (routingControl) {
-    map.removeControl(routingControl);
-  }
-
-  routingControl = L.Routing.control({
-    waypoints: [
-      L.latLng(userPosition[0], userPosition[1]),
-      L.latLng(destLat, destLon)
-    ],
-    routeWhileDragging: false,
-    addWaypoints: false,
-    draggableWaypoints: false,
-    createMarker: () => null
-  }).addTo(map);
-}
-
-// Hantera sökning
-async function handleSearch(e) {
-  const query = e.target.value.trim();
-  const suggestionsList = document.getElementById("suggestions");
-
-  if (!query) {
-    suggestionsList.style.display = "none";
-    return;
-  }
+async function loadTrafficInfo() {
+  const query = `
+  <REQUEST>
+    <LOGIN authenticationkey="${TRAFIKVERKET_API_KEY}" />
+    <QUERY objecttype="Situation" schemaversion="1">
+      <FILTER></FILTER>
+      <INCLUDE>Deviation.Id</INCLUDE>
+      <INCLUDE>Deviation.Message</INCLUDE>
+      <INCLUDE>Deviation.IconId</INCLUDE>
+      <INCLUDE>Deviation.Geometry.WGS84</INCLUDE>
+    </QUERY>
+  </REQUEST>`;
 
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+    const res = await fetch("https://api.trafikinfo.trafikverket.se/v2/data.json", {
+      method: "POST",
+      body: query,
+      headers: { "Content-Type": "text/xml" }
+    });
     const data = await res.json();
 
-    suggestionsList.innerHTML = "";
-    data.forEach(place => {
-      const li = document.createElement("li");
-      li.textContent = place.display_name;
-      li.onclick = () => {
-        showDestination(place.lat, place.lon, place.display_name);
-        suggestionsList.style.display = "none";
-        document.getElementById("searchBox").value = place.display_name;
-      };
-      suggestionsList.appendChild(li);
+    // Samla alla aktiva ID från Trafikverket
+    const activeIds = new Set();
+
+    if (data?.RESPONSE?.RESULT?.[0]?.Situation) {
+      data.RESPONSE.RESULT[0].Situation.forEach(sit => {
+        if (sit.Deviation) {
+          sit.Deviation.forEach(dev => {
+            if (dev.Id && dev.Geometry?.WGS84) {
+              activeIds.add(dev.Id);
+
+              // Om markör redan finns → hoppa över
+              if (trafficMarkers[dev.Id]) return;
+
+              // Koordinater
+              const coords = dev.Geometry.WGS84
+                .replace("POINT (", "")
+                .replace(")", "")
+                .split(" ");
+              const lon = parseFloat(coords[0]);
+              const lat = parseFloat(coords[1]);
+
+              // Ikoner
+              let iconUrl = "https://cdn-icons-png.flaticon.com/512/565/565547.png"; // default händelse
+              if (dev.IconId === "1") iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png"; // olycka
+              if (dev.IconId === "2") iconUrl = "https://cdn-icons-png.flaticon.com/512/2991/2991115.png"; // vägarbete
+
+              const customIcon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [24, 24]
+              });
+
+              // Lägg till markör
+              const marker = L.marker([lat, lon], { icon: customIcon })
+                .addTo(map)
+                .bindPopup(dev.Message || "Ingen beskrivning");
+
+              trafficMarkers[dev.Id] = marker;
+            }
+          });
+        }
+      });
+    }
+
+    // Ta bort markörer som inte längre finns i Trafikverkets svar
+    Object.keys(trafficMarkers).forEach(id => {
+      if (!activeIds.has(id)) {
+        map.removeLayer(trafficMarkers[id]);
+        delete trafficMarkers[id];
+      }
     });
 
-    suggestionsList.style.display = data.length ? "block" : "none";
   } catch (err) {
-    console.error("Search error:", err);
-    suggestionsList.style.display = "none";
+    console.error("Fel vid hämtning av trafikdata:", err);
   }
 }
 
-window.onload = initMap;
+// Hämta trafikinfo vid start
+loadTrafficInfo();
+
+// 🔄 Uppdatera trafikdata var 20:e sekund
+setInterval(loadTrafficInfo, 20000);
