@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Navigation System</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Arn Maps – GPS</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 </head>
-<body>
+<body class="light">
+  <!-- Top bar -->
+  <div id="top-bar">
+    <input id="searchBox" type="text" placeholder="Sök destination...">
+    <button id="modeToggle">🌙</button>
+  </div>
+
+  <!-- Suggestions dropdown -->
+  <div id="suggestions"></div>
+
+  <!-- Map -->
   <div id="map"></div>
 
-  <!-- Sökbar i toppen -->
-  <div id="searchContainer">
-    <input type="text" id="searchBox" placeholder="Search location...">
-    <ul id="suggestions"></ul>
-    <ul id="recentSearches"></ul>
+  <!-- Bottom bar with buttons -->
+  <div id="bottom-bar">
+    <button id="recenterBtn">📍</button>
+    <button id="travelModeBtn">🚌</button>
   </div>
 
-  <!-- Mode-knapp (uppe till vänster) -->
-  <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
-
-  <!-- Recenter-knapp (nere i mitten) -->
-  <div id="bottomControls">
-    <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
+  <!-- Travel mode popup -->
+  <div id="travelModePopup" class="popup hidden">
+    <h3>Välj färdsätt</h3>
+    <button data-mode="car">🚗 Bil</button>
+    <button data-mode="bike">🚲 Cykel</button>
+    <button data-mode="walk">🚶 Gå</button>
+    <button data-mode="bus">🚌 Buss (Sthlm/Gbg)</button>
+    <button id="closePopup">Stäng</button>
   </div>
-  
-  <!-- Leaflet JS -->
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
