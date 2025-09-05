@@ -12,12 +12,15 @@
 
   <!-- Top bar -->
   <div class="top-bar">
+    <input type="text" id="searchBox" placeholder="Sök destination...">
     <button id="modeToggle">🌙</button>
   </div>
+  <div id="suggestions"></div>
 
   <!-- Bottom bar -->
   <div class="bottom-bar">
-    <button id="recenterBtn">Recenter</button>
+    <button id="recenterBtn">Recenter ✅</button>
+    <button id="travelModeBtn">Färdsätt</button>
   </div>
 
   <!-- Legend -->
@@ -28,7 +31,19 @@
     <p><img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" width="18"> Händelse</p>
   </div>
 
+  <!-- Travel mode popup -->
+  <div id="travelPopup" class="popup hidden">
+    <h3>Välj färdsätt</h3>
+    <button class="mode-option" data-mode="car">🚗 Bil</button>
+    <button class="mode-option" data-mode="bike">🚲 Cykel</button>
+    <button class="mode-option" data-mode="walk">🚶 Gå</button>
+    <button class="mode-option" data-mode="sl">🚌 Buss (SL)</button>
+    <button class="mode-option" data-mode="vasttrafik">🚌 Buss (Västtrafik)</button>
+    <button id="closeTravel">Stäng</button>
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
