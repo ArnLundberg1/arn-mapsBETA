@@ -1,7 +1,7 @@
 let map, userMarker, routeLine, autoRecenter = false;
 let travelMode = "car";
 const ORS_API_KEY = ""; // ej nödvändigt nu, vi kör OSRM
-const TRAFIKVERKET_API_KEY = "DIN_TRAFIKEVERKET_API_KEY";
+const TRAFIKVERKET_API_KEY = "1ea923daae314b80addd205c26007e35";
 
 window.onload = () => {
   map = L.map("map").setView([59.3293, 18.0686], 13);
