@@ -1,101 +1,45 @@
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: Arial, sans-serif;
+html,body {
+  margin:0; padding:0; height:100%;
+  font-family:Arial,sans-serif;
 }
+#map { position:absolute; top:0; bottom:0; width:100%; }
 
-#map {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
+/* Top bar */
 #top-bar {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 1000;
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  display:flex; gap:8px; z-index:1000;
 }
-
 #searchBox {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  min-width: 200px;
+  padding:8px; border-radius:6px; border:1px solid #ccc; width:200px;
 }
-
 #suggestions {
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  width: 220px;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 1000;
+  position:absolute; top:42px; left:50%; transform:translateX(-50%);
+  background:white; border:1px solid #ddd;
+  width:220px; max-height:150px; overflow-y:auto; z-index:1000;
 }
+#suggestions div { padding:6px; cursor:pointer; }
+#suggestions div:hover { background:#f0f0f0; }
 
-#suggestions div {
-  padding: 6px;
-  cursor: pointer;
-}
-#suggestions div:hover {
-  background: #f0f0f0;
-}
-
+/* Bottom bar */
 #bottom-bar {
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 20px;
-  z-index: 1000;
+  position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+  display:flex; gap:20px; z-index:1000;
 }
-
 #bottom-bar button {
-  padding: 12px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  background: #007bff;
-  color: white;
-  font-size: 18px;
+  padding:12px; border-radius:50%; border:none; cursor:pointer;
+  background:white; box-shadow:0 2px 6px rgba(0,0,0,0.3);
 }
 
+/* Popup */
 .popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 2px solid #333;
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 2000;
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:white; border:1px solid #ccc; padding:20px;
+  z-index:2000; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
-.hidden {
-  display: none;
-}
+.hidden { display:none; }
 
 /* Dark mode */
-body.dark {
-  background: #121212;
-  color: white;
-}
-
-body.dark #searchBox,
-body.dark #suggestions {
-  background: #333;
-  color: white;
-  border: 1px solid #666;
+body.dark { background:#222; color:white; }
+body.dark #searchBox, body.dark #suggestions, body.dark .popup {
+  background:#333; color:white; border:1px solid #555;
 }
