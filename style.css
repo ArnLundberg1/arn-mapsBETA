@@ -22,6 +22,13 @@ body, html {
   z-index: 1000;
 }
 
+.top-bar input {
+  padding: 8px;
+  width: 220px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
 .top-bar button {
   padding: 8px 12px;
   border: none;
@@ -32,6 +39,28 @@ body, html {
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
+/* Suggestions */
+#suggestions {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+#suggestions div {
+  padding: 8px;
+  cursor: pointer;
+}
+#suggestions div:hover {
+  background: #f0f0f0;
+}
+
 /* Bottom bar */
 .bottom-bar {
   position: absolute;
@@ -39,6 +68,8 @@ body, html {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
+  display: flex;
+  gap: 10px;
 }
 
 .bottom-bar button {
@@ -71,6 +102,35 @@ body, html {
   font-size: 14px;
 }
 
+/* Popup */
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 2000;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.popup.hidden {
+  display: none;
+}
+.popup button {
+  display: block;
+  width: 100%;
+  margin: 6px 0;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #0078ff;
+  color: white;
+  cursor: pointer;
+}
+
 /* Dark mode */
 body.dark {
   background: #1e1e1e;
@@ -85,5 +145,10 @@ body.dark .bottom-bar button {
 
 body.dark .legend {
   background: rgba(40,40,40,0.9);
+  color: #eee;
+}
+
+body.dark .popup {
+  background: #333;
   color: #eee;
 }
