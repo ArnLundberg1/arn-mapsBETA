@@ -1,80 +1,253 @@
-let map, userMarker, routeLine, autoRecenter = false;
-let travelMode = "car";
+let map;
+let userMarker;
+let userPosition;
+let destinationMarker;
+let routingControl;
+let followUser = false;
+let darkMode = false;
 let recentSearches = [];
 
-window.onload = () => {
-  map = L.map("map").setView([59.3293, 18.0686], 13); // Default Sthlm
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
-  }).addTo(map);
+// Tile-lager
+const lightTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors"
+});
 
-  // User position (uppdatera var 2s)
-  if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(pos => {
-      const { latitude, longitude } = pos.coords;
-      if (!userMarker) {
-        userMarker = L.marker([latitude, longitude]).addTo(map).bindPopup("Du är här");
-      } else {
-        userMarker.setLatLng([latitude, longitude]);
-      }
-      if (autoRecenter) map.setView([latitude, longitude], 15);
-    }, () => alert("Kunde inte hämta position."), { enableHighAccuracy:true, maximumAge:0, timeout:5000 });
-  }
+const darkTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
+});
 
-  document.getElementById("modeToggle").onclick = toggleMode;
-  document.getElementById("recenterBtn").onclick = () => autoRecenter = !autoRecenter;
+// Initiera karta
+function initMap() {
+  map = L.map("map", { zoomControl: true }).setView([59.3293, 18.0686], 13);
+  lightTiles.addTo(map);
 
-  // Travel mode popup
-  const popup = document.getElementById("travelModePopup");
-  document.getElementById("travelModeBtn").onclick = () => popup.classList.remove("hidden");
-  document.getElementById("closePopup").onclick = () => popup.classList.add("hidden");
-  popup.querySelectorAll("button[data-mode]").forEach(btn => {
-    btn.onclick = () => { travelMode = btn.dataset.mode; popup.classList.add("hidden"); };
+  // Klick för att välja destination
+  map.on("click", async (e) => {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+    const label = await getAddress(lat, lon);
+    showDestination(lat, lon, label);
   });
 
-  // Search
-  document.getElementById("searchBox").addEventListener("keypress", e => {
-    if (e.key === "Enter") searchDestination(e.target.value);
-  });
-};
+  // Lyssna på sökfält
+  document.getElementById("searchBox").addEventListener("input", handleSearch);
 
-function toggleMode() {
-  document.body.classList.toggle("dark");
-  document.getElementById("modeToggle").textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+  requestLocationPermission();
+
+  // Stäng förslag om man klickar utanför
+  document.addEventListener("click", (e) => {
+    if (!document.getElementById("searchContainer").contains(e.target)) {
+      document.getElementById("suggestions").style.display = "none";
+      document.getElementById("recentSearches").style.display = "none";
+    }
+  });
+
+  loadRecentSearches();
 }
 
-async function searchDestination(query) {
-  if (!query) return;
-  recentSearches.unshift(query);
-  if (recentSearches.length > 5) recentSearches.pop();
-
-  const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-  const data = await res.json();
-  if (data.length > 0) {
-    const dest = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-    if (routeLine) map.removeLayer(routeLine);
-
-    // Placera en marker med popup och "Start Route"-knapp
-    const marker = L.marker(dest).addTo(map).bindPopup(`
-      <b>${data[0].display_name}</b><br>
-      <button onclick="startRoute([${dest[0]},${dest[1]}])">Start Route</button>
-    `);
-    marker.openPopup();
+// Toggle recenter
+function toggleRecenter() {
+  followUser = !followUser;
+  const btn = document.getElementById("recenterBtn");
+  if (followUser) {
+    btn.textContent = "📍 Recenter: ON";
+    btn.classList.add("active");
+    if (userPosition) map.setView(userPosition, 15);
   } else {
-    alert("Ingen plats hittad.");
+    btn.textContent = "📍 Recenter: OFF";
+    btn.classList.remove("active");
   }
 }
 
-async function startRoute(destination) {
-  if (!userMarker) return alert("Ingen startposition tillgänglig.");
-
-  const start = userMarker.getLatLng();
-  const res = await fetch(`https://router.project-osrm.org/route/v1/${travelMode}/${start.lng},${start.lat};${destination[1]},${destination[0]}?overview=full&geometries=geojson`);
-  const data = await res.json();
-
-  if (data.routes.length > 0) {
-    const route = data.routes[0];
-    routeLine = L.geoJSON(route.geometry, { color: "blue" }).addTo(map);
-    map.fitBounds(routeLine.getBounds());
+// Toggle dark/light mode
+function toggleMode() {
+  darkMode = !darkMode;
+  const btn = document.getElementById("modeBtn");
+  if (darkMode) {
+    document.body.classList.add("dark");
+    map.removeLayer(lightTiles);
+    darkTiles.addTo(map);
+    btn.textContent = "☀️ Light Mode";
+  } else {
+    document.body.classList.remove("dark");
+    map.removeLayer(darkTiles);
+    lightTiles.addTo(map);
+    btn.textContent = "🌙 Dark Mode";
   }
 }
+
+// Platsåtkomst
+function requestLocationPermission() {
+  document.getElementById("locationPopup").style.display = "none";
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      updateUserPosition,
+      handleLocationError,
+      { enableHighAccuracy: true }
+    );
+
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        updateUserPosition,
+        handleLocationError,
+        { enableHighAccuracy: true }
+      );
+    }, 2000);
+  } else {
+    alert("Din webbläsare stödjer inte platsinformation.");
+  }
+}
+
+// Uppdatera användarens position
+function updateUserPosition(position) {
+  userPosition = [position.coords.latitude, position.coords.longitude];
+
+  if (!userMarker) {
+    const arrowIcon = L.icon({
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+    userMarker = L.marker(userPosition, { icon: arrowIcon }).addTo(map);
+    map.setView(userPosition, 15);
+  } else {
+    userMarker.setLatLng(userPosition);
+  }
+
+  if (followUser) {
+    map.setView(userPosition, map.getZoom());
+  }
+}
+
+// Hantera fel
+function handleLocationError(err) {
+  console.warn("GPS error:", err.message);
+  document.getElementById("locationPopup").style.display = "flex";
+}
+
+// Hämta adress
+async function getAddress(lat, lon) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await res.json();
+    return data.display_name || "Unknown location";
+  } catch (e) {
+    return "Unknown location";
+  }
+}
+
+// Visa destination
+function showDestination(lat, lon, label) {
+  if (destinationMarker) destinationMarker.remove();
+  if (routingControl) map.removeControl(routingControl);
+
+  destinationMarker = L.marker([lat, lon]).addTo(map);
+  destinationMarker.bindPopup(`
+    <div style="min-width:200px;">
+      <p>${label}</p>
+      <button onclick="startRoute(${lat},${lon})"
+        style="margin-top:6px; padding:6px 12px; border:none; background:#007bff; color:white; border-radius:4px; cursor:pointer;">
+        Start Route
+      </button>
+    </div>
+  `).openPopup();
+
+  saveRecentSearch(label, lat, lon);
+}
+
+// Starta rutt
+function startRoute(destLat, destLon) {
+  if (!userPosition) {
+    alert("Din position är inte tillgänglig ännu.");
+    return;
+  }
+
+  if (routingControl) {
+    map.removeControl(routingControl);
+  }
+
+  routingControl = L.Routing.control({
+    waypoints: [
+      L.latLng(userPosition[0], userPosition[1]),
+      L.latLng(destLat, destLon)
+    ],
+    routeWhileDragging: false,
+    addWaypoints: false,
+    draggableWaypoints: false,
+    createMarker: () => null
+  }).addTo(map);
+}
+
+// Hantera sökning
+async function handleSearch(e) {
+  const query = e.target.value.trim();
+  const suggestionsList = document.getElementById("suggestions");
+  const recentList = document.getElementById("recentSearches");
+
+  if (!query) {
+    suggestionsList.style.display = "none";
+    if (recentSearches.length) {
+      showRecentSearches();
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+    const data = await res.json();
+
+    suggestionsList.innerHTML = "";
+    data.forEach(place => {
+      const li = document.createElement("li");
+      li.textContent = place.display_name;
+      li.onclick = () => {
+        showDestination(place.lat, place.lon, place.display_name);
+        suggestionsList.style.display = "none";
+        recentList.style.display = "none";
+        document.getElementById("searchBox").value = place.display_name;
+      };
+      suggestionsList.appendChild(li);
+    });
+
+    suggestionsList.style.display = data.length ? "block" : "none";
+  } catch (err) {
+    console.error("Search error:", err);
+    suggestionsList.style.display = "none";
+  }
+}
+
+// Spara senaste sökningar
+function saveRecentSearch(label, lat, lon) {
+  recentSearches.unshift({ label, lat, lon });
+  if (recentSearches.length > 5) recentSearches.pop();
+  localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+}
+
+// Ladda senaste sökningar
+function loadRecentSearches() {
+  const saved = localStorage.getItem("recentSearches");
+  if (saved) {
+    recentSearches = JSON.parse(saved);
+  }
+  showRecentSearches();
+}
+
+// Visa senaste sökningar
+function showRecentSearches() {
+  const recentList = document.getElementById("recentSearches");
+  recentList.innerHTML = "";
+  recentSearches.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.label;
+    li.onclick = () => {
+      showDestination(item.lat, item.lon, item.label);
+      recentList.style.display = "none";
+      document.getElementById("searchBox").value = item.label;
+    };
+    recentList.appendChild(li);
+  });
+  recentList.style.display = recentSearches.length ? "block" : "none";
+}
+
+window.onload = initMap;
