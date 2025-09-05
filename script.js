@@ -1,137 +1,129 @@
-let map;
-let userMarker;
-let routeLine;
-let ttsEnabled = true;
+let map, userMarker, routeLine, ttsEnabled = true, autoRecenter = false;
 let travelMode = "car";
-let synth = window.speechSynthesis;
+let recentSearches = [];
 
-// Init map
-function initMap() {
-  map = L.map("map").setView([59.3293, 18.0686], 13);
-
+window.onload = () => {
+  map = L.map("map").setView([59.3293, 18.0686], 13); // Default Sthlm
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: "© OpenStreetMap"
   }).addTo(map);
 
-  userMarker = L.marker([59.3293, 18.0686]).addTo(map);
-
+  // User position
   if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(updateUserPos, console.error, { enableHighAccuracy: true });
+    navigator.geolocation.watchPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      if (!userMarker) {
+        userMarker = L.marker([latitude, longitude]).addTo(map).bindPopup("Du är här");
+      } else {
+        userMarker.setLatLng([latitude, longitude]);
+      }
+      if (autoRecenter) map.setView([latitude, longitude], 15);
+    }, () => alert("Kunde inte hämta position."));
   }
 
-  document.getElementById("modeToggle").addEventListener("click", toggleMode);
-  document.getElementById("ttsToggle").addEventListener("click", toggleTTS);
-  document.getElementById("recenterBtn").addEventListener("click", recenterMap);
-  document.getElementById("travelModeBtn").addEventListener("click", () => {
-    document.getElementById("travelModePopup").classList.remove("hidden");
-  });
-  document.getElementById("closePopup").addEventListener("click", () => {
-    document.getElementById("travelModePopup").classList.add("hidden");
-  });
+  document.getElementById("modeToggle").onclick = toggleMode;
+  document.getElementById("ttsToggle").onclick = toggleTTS;
+  document.getElementById("recenterBtn").onclick = () => autoRecenter = !autoRecenter;
 
-  document.querySelectorAll("#travelModePopup button[data-mode]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      travelMode = btn.dataset.mode;
-      speak(`Färdsätt ändrat till ${travelMode}`);
-      document.getElementById("travelModePopup").classList.add("hidden");
-    });
+  // Travel mode popup
+  const popup = document.getElementById("travelModePopup");
+  document.getElementById("travelModeBtn").onclick = () => popup.classList.remove("hidden");
+  document.getElementById("closePopup").onclick = () => popup.classList.add("hidden");
+  popup.querySelectorAll("button[data-mode]").forEach(btn => {
+    btn.onclick = () => { travelMode = btn.dataset.mode; popup.classList.add("hidden"); };
   });
 
-  setupSearch();
-}
+  // Search
+  document.getElementById("searchBox").addEventListener("keypress", e => {
+    if (e.key === "Enter") searchDestination(e.target.value);
+  });
 
-// Update user position
-function updateUserPos(pos) {
-  const { latitude, longitude } = pos.coords;
-  userMarker.setLatLng([latitude, longitude]);
-}
+  // Trafikverket info (OBS: kräver API-nyckel från Trafikverket)
+  fetchTrafficEvents();
+};
 
-// Recenter map
-function recenterMap() {
-  if (userMarker) {
-    map.setView(userMarker.getLatLng(), 15);
-  }
-}
-
-// Toggle Dark/Light
 function toggleMode() {
   document.body.classList.toggle("dark");
-  document.body.classList.toggle("light");
+  document.getElementById("modeToggle").textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 }
-
-// Toggle TTS
 function toggleTTS() {
   ttsEnabled = !ttsEnabled;
-  document.getElementById("ttsToggle").innerText = ttsEnabled ? "🔊" : "🔇";
+  document.getElementById("ttsToggle").textContent = ttsEnabled ? "🔊" : "🔇";
 }
 
-// Speak TTS
-function speak(text) {
-  if (ttsEnabled && synth) {
-    let utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "sv-SE";
-    synth.speak(utter);
+async function searchDestination(query) {
+  if (!query) return;
+  recentSearches.unshift(query);
+  if (recentSearches.length > 5) recentSearches.pop();
+
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  if (data.length > 0) {
+    const dest = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+    if (routeLine) map.removeLayer(routeLine);
+    startRoute(dest);
+  } else {
+    alert("Ingen plats hittad.");
   }
 }
 
-// Search bar + route
-function setupSearch() {
-  const searchBox = document.getElementById("searchBox");
+async function startRoute(destination) {
+  if (!userMarker) return alert("Ingen startposition tillgänglig.");
 
-  searchBox.addEventListener("keypress", async (e) => {
-    if (e.key === "Enter") {
-      const query = searchBox.value;
-      if (!query) return;
+  const start = userMarker.getLatLng();
+  const res = await fetch(`https://router.project-osrm.org/route/v1/${travelMode}/${start.lng},${start.lat};${destination[1]},${destination[0]}?overview=full&geometries=geojson&steps=true`);
+  const data = await res.json();
 
-      const coords = await geocode(query);
-      if (coords) {
-        startRoute(userMarker.getLatLng(), coords, query);
-      }
+  if (data.routes.length > 0) {
+    const route = data.routes[0];
+    routeLine = L.geoJSON(route.geometry, { color: "blue" }).addTo(map);
+    map.fitBounds(routeLine.getBounds());
+
+    if (ttsEnabled && "speechSynthesis" in window) {
+      let instructions = [];
+      route.legs[0].steps.forEach(step => {
+        if (step.maneuver.instruction) instructions.push(step.maneuver.instruction);
+      });
+      speakInstructions(instructions);
     }
+  }
+}
+
+function speakInstructions(instructions) {
+  instructions.forEach((text, i) => {
+    setTimeout(() => {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "sv-SE";
+      window.speechSynthesis.speak(utter);
+    }, i * 5000); // var 5 sek
   });
 }
 
-// Start route with OSRM + TTS directions
-async function startRoute(start, end, name) {
-  if (routeLine) map.removeLayer(routeLine);
-
-  const url = `https://router.project-osrm.org/route/v1/${travelMode}/${start.lng},${start.lat};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`;
-
+async function fetchTrafficEvents() {
+  // Detta kräver Trafikverket API nyckel
+  const apiKey = "1ea923daae314b80addd205c26007e35";
+  const body = `
+    <REQUEST>
+      <LOGIN authenticationkey="${apiKey}" />
+      <QUERY objecttype="Situation" schemaversion="1" limit="20">
+        <FILTER><EQ name="Deviation.IconId" value="1"/></FILTER>
+      </QUERY>
+    </REQUEST>`;
   try {
-    const res = await fetch(url);
+    const res = await fetch("https://api.trafikinfo.trafikverket.se/v2/data.json", {
+      method: "POST", headers: { "Content-Type": "text/xml" }, body
+    });
     const data = await res.json();
-
-    if (data.routes && data.routes.length > 0) {
-      const route = data.routes[0];
-      routeLine = L.geoJSON(route.geometry, { color: "blue" }).addTo(map);
-      map.fitBounds(routeLine.getBounds());
-
-      speak(`Rutt startad till ${name}`);
-
-      // Läs upp varje steg en gång
-      route.legs[0].steps.forEach((step, index) => {
-        setTimeout(() => {
-          speak(step.maneuver.instruction);
-        }, index * 4000);
+    if (data.RESPONSE?.RESULT[0]?.Situation) {
+      data.RESPONSE.RESULT[0].Situation.forEach(s => {
+        if (s.Deviation && s.Deviation[0].Geometry?.WGS84) {
+          const coords = s.Deviation[0].Geometry.WGS84.match(/\(([^)]+)\)/)[1].split(" ");
+          const lat = parseFloat(coords[1]), lon = parseFloat(coords[0]);
+          L.marker([lat, lon]).addTo(map).bindPopup(s.Deviation[0].Header);
+        }
       });
-    } else {
-      speak("Ingen rutt hittades");
     }
   } catch (err) {
-    console.error("Fel vid hämtning av rutt", err);
-    speak("Kunde inte hämta rutt");
+    console.error("Kunde inte hämta Trafikverket-data", err);
   }
 }
-
-// Geocode via Nominatim
-async function geocode(query) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  if (data && data.length > 0) {
-    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  }
-  return null;
-}
-
-window.onload = initMap;
