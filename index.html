@@ -1,38 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Navigation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigeringssystem</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- UI-knappar -->
-  <div id="controls">
-    <input type="text" id="searchBox" placeholder="Search location...">
-    <ul id="suggestions"></ul>
-    <button id="recenterBtn" onclick="toggleRecenter()">📍 Recenter: OFF</button>
-    <button id="modeBtn" onclick="toggleMode()">🌙 Dark Mode</button>
+  <!-- Top bar -->
+  <div class="top-bar">
+    <button id="modeToggle">🌙</button>
   </div>
 
-  <!-- Popup för platsinformation -->
-  <div id="locationPopup">
-    <div class="popup-content">
-      <p>
-        <strong>SWE</strong> - Du måste godkänna platsinformation för att Navigeringssystemet ska funka<br>
-        <strong>ENG</strong> - You must approve location information for the Navigation System to work
-      </p>
-      <button onclick="requestLocationPermission()">OK</button>
-    </div>
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <button id="recenterBtn">Recenter</button>
   </div>
 
-  <!-- Leaflet JS -->
+  <!-- Legend -->
+  <div class="legend">
+    <h4>Trafikinfo</h4>
+    <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Olycka</p>
+    <p><img src="https://cdn-icons-png.flaticon.com/512/2991/2991115.png" width="18"> Vägarbete</p>
+    <p><img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" width="18"> Händelse</p>
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
