@@ -119,7 +119,7 @@ document.querySelectorAll(".mode-option").forEach(btn => {
 });
 
 // Trafikverket API
-const TRAFIKVERKET_API_KEY = "DIN_API_NYCKEL_HÄR"; // byt ut mot egen
+const TRAFIKVERKET_API_KEY = "1ea923daae314b80addd205c26007e35"; // byt ut mot egen
 let trafficMarkers = {};
 
 async function loadTrafficInfo() {
