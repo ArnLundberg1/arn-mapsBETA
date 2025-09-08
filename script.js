@@ -155,7 +155,7 @@ async function loadTrafficInfo() {
               const lon = parseFloat(coords[0]);
               const lat = parseFloat(coords[1]);
 
-              let iconUrl = "https://cdn-icons-png.flaticon.com/512/565/565547.png";
+              let iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png";
               if (dev.IconId === "1") iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png";
               if (dev.IconId === "2") iconUrl = "https://cdn-icons-png.flaticon.com/512/2991/2991115.png";
 
