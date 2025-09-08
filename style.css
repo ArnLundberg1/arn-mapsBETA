@@ -102,46 +102,6 @@ body, html {
   font-size: 14px;
 }
 
-#mode-toggle, #tts-toggle, #favorites-btn {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  background: #ddd;
-  cursor: pointer;
-}
-
-/* Favoriter */
-#favorites-menu {
-  position: absolute;
-  top: 60px;
-  right: 15px;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  z-index: 1100;
-  width: 200px;
-}
-
-#favorites-menu.hidden {
-  display: none;
-}
-
-#favorites-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#favorites-list li {
-  padding: 5px;
-  cursor: pointer;
-}
-
-#favorites-list li:hover {
-  background: #f0f0f0;
-}
-
 /* Popup */
 .popup {
   position: absolute;
