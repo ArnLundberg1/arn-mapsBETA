@@ -28,7 +28,7 @@
     <h4>Trafikinfo</h4>
     <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Olycka</p>
     <p><img src="https://cdn-icons-png.flaticon.com/512/2991/2991115.png" width="18"> Vägarbete</p>
-    <p><img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" width="18"> Händelse</p>
+    <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Händelse</p>
   </div>
 
   <!-- Travel mode popup -->
