@@ -157,7 +157,7 @@ async function loadTrafficInfo() {
 
               let iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png";
               if (dev.IconId === "1") iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png";
-              if (dev.IconId === "2") iconUrl = "https://cdn-icons-png.flaticon.com/512/2991/2991115.png";
+              if (dev.IconId === "2") iconUrl = "https://cdn-icons-png.flaticon.com/512/564/564619.png";
 
               const customIcon = L.icon({ iconUrl, iconSize: [24, 24] });
               const marker = L.marker([lat, lon], { icon: customIcon })
