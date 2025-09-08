@@ -19,6 +19,12 @@
   </div>
   <div id="suggestions"></div>
 
+  <!-- Favoriter meny -->
+  <div id="favorites-menu" class="hidden">
+    <h3>Mina Favoriter</h3>
+    <ul id="favorites-list"></ul>
+  </div>
+
   <!-- Bottom bar -->
   <div class="bottom-bar">
     <button id="recenterBtn">Recenter ✅</button>
