@@ -88,19 +88,19 @@ async function updateTrafficMarkers() {
     let title = "Händelse";
 
     if (sit.SituationType?.includes("Accident")) {
-      iconUrl = "icons/accident.png";
+      iconUrl = "https://cdn-icons-png.flaticon.com/512/1698/1698535.png";
       title = "Olycka";
     }
     if (sit.SituationType?.includes("RoadWork")) {
-      iconUrl = "icons/roadwork.png";
+      iconUrl = "https://cdn-icons-png.flaticon.com/512/1029/1029183.png";
       title = "Vägarbete";
     }
     if (sit.SituationType?.includes("QueueingTraffic")) {
-      iconUrl = "icons/trafficjam.png";
+      iconUrl = "https://cdn-icons-png.flaticon.com/512/3202/3202926.png";
       title = "Köbildning";
     }
     if (sit.SituationType?.includes("WeatherWarning")) {
-      iconUrl = "icons/weather.png";
+      iconUrl = "https://cdn-icons-png.flaticon.com/512/1146/1146869.png";
       title = "Vädervarning";
     }
 
