@@ -14,16 +14,8 @@
   <div class="top-bar">
     <input type="text" id="searchBox" placeholder="Sök destination...">
     <button id="modeToggle">🌙</button>
-    <button id="tts-toggle">🔊</button>
-    <button id="favorites-btn">⭐</button>
   </div>
   <div id="suggestions"></div>
-
-  <!-- Favoriter meny -->
-  <div id="favorites-menu" class="hidden">
-    <h3>Mina Favoriter</h3>
-    <ul id="favorites-list"></ul>
-  </div>
 
   <!-- Bottom bar -->
   <div class="bottom-bar">
@@ -34,8 +26,6 @@
   <!-- Legend -->
   <div class="legend">
     <h4>Trafikinfo</h4>
-    <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Olycka</p>
-    <p><img src="https://cdn-icons-png.flaticon.com/512/2991/2991115.png" width="18"> Vägarbete</p>
     <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Händelse</p>
   </div>
 
