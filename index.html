@@ -3,58 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arn Maps</title>
+  <title>Arn Maps BETA</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
-<body>
+<body class="light">
+
   <div id="map"></div>
 
-  <!-- Top bar -->
-  <div class="top-bar">
-    <input type="text" id="searchBox" placeholder="Sök destination...">
-    <button id="modeToggle">🌙</button>
-    <button id="tts-toggle">🔊</button>
-    <button id="favorites-btn">⭐</button>
-  </div>
-  <div id="suggestions"></div>
-
-  <!-- Favoriter meny -->
-  <div id="favorites-menu" class="hidden">
-    <h3>Mina Favoriter</h3>
-    <ul id="favorites-list"></ul>
+  <!-- Top bar med sökruta -->
+  <div id="top-bar">
+    <input type="text" id="search" placeholder="Sök plats...">
+    <button id="mode-toggle">🌙</button>
   </div>
 
-  <!-- Directions box -->
-  <div id="directions-box">
-    <h3>Färdbeskrivning</h3>
-    <ul id="directions-list"></ul>
-  </div>
-  
-  <!-- Bottom bar -->
-  <div class="bottom-bar">
-    <button id="recenterBtn">Recenter ✅</button>
-    <button id="travelModeBtn">Färdsätt</button>
+  <!-- Bottenmeny med inställningar -->
+  <div id="bottom-bar">
+    <button id="recenter">📍 Recenter</button>
+    <button id="traffic-toggle">🚦 Trafik</button>
+    <button id="tts-toggle">🔊 TTS</button>
+    <button id="settings-toggle">⚙️</button>
   </div>
 
-  <!-- Legend -->
-  <div class="legend">
-    <h4>Trafikinfo</h4>
-    <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Väghändelser</p>
-  </div>
-
-  <!-- Travel mode popup -->
-  <div id="travelPopup" class="popup hidden">
-    <h3>Välj färdsätt</h3>
-    <button class="mode-option" data-mode="car">🚗 Bil</button>
-    <button class="mode-option" data-mode="bike">🚲 Cykel</button>
-    <button class="mode-option" data-mode="walk">🚶 Gå (Kommer snart)</button>
-    <button class="mode-option" data-mode="vasttrafik">🚌 Buss (Kommer snart)</button>
-    <button id="closeTravel">Stäng</button>
+  <!-- Popup för inställningar -->
+  <div id="settings-popup" class="hidden">
+    <h2>Inställningar</h2>
+    <label><input type="checkbox" id="auto-recenter" checked> Automatisk recenter</label><br>
+    <label><input type="checkbox" id="dark-mode"> Mörkt läge</label><br>
+    <label><input type="checkbox" id="tts-enabled" checked> TTS aktiverat</label><br>
+    <label><input type="checkbox" id="traffic-enabled" checked> Visa trafikinfo</label><br>
+    <button id="close-settings">Stäng</button>
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
