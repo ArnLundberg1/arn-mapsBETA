@@ -11,6 +11,50 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 trafficLayer.addTo(map);
 
+// Ljusa & mörka tiles
+lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+});
+darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap & Carto'
+});
+
+// Startläge = ljus
+lightTiles.addTo(map);
+
+// Toggle dark/light mode
+document.getElementById('mode-toggle').addEventListener('click', () => {
+  if (map.hasLayer(lightTiles)) {
+    map.removeLayer(lightTiles);
+    darkTiles.addTo(map);
+    document.getElementById('mode-toggle').textContent = "☀️";
+  } else {
+    map.removeLayer(darkTiles);
+    lightTiles.addTo(map);
+    document.getElementById('mode-toggle').textContent = "🌙";
+  }
+});
+
+// Hämta & följ användarens position
+function updateUserPosition() {
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    const latlng = [latitude, longitude];
+
+    if (!userMarker) {
+      userMarker = L.marker(latlng).addTo(map);
+    } else {
+      userMarker.setLatLng(latlng);
+    }
+
+    if (recenter) {
+      map.setView(latlng, 15);
+    }
+  });
+}
+setInterval(updateUserPosition, 2000);
+updateUserPosition();
+
 // Toggle Light/Dark mode
 document.getElementById("mode-toggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
