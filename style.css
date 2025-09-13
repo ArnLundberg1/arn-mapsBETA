@@ -8,6 +8,49 @@ html, body {
   width: 100%;
 }
 
+#top-bar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+  background: white;
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+#search {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 200px;
+}
+
+#mode-toggle {
+  cursor: pointer;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: #f0f0f0;
+}
+
+#recenter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
 #controls {
   position: absolute;
   top: 10px;
