@@ -2,40 +2,25 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arn Maps BETA</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body class="light">
-
+  <!-- Kartan -->
   <div id="map"></div>
 
-  <!-- Top bar med sökruta -->
-  <div id="top-bar">
-    <input type="text" id="search" placeholder="Sök plats...">
-    <button id="mode-toggle">🌙</button>
+  <!-- Kontrollknappar -->
+  <div id="controls">
+    <button id="mode-toggle">🌙 / ☀️</button>
+    <button id="recenter">Recenter</button>
+    <button id="tts-toggle">TTS On/Off</button>
   </div>
 
-  <!-- Bottenmeny med inställningar -->
-  <div id="bottom-bar">
-    <button id="recenter">📍 Recenter</button>
-    <button id="traffic-toggle">🚦 Trafik</button>
-    <button id="tts-toggle">🔊 TTS</button>
-    <button id="settings-toggle">⚙️</button>
-  </div>
+  <!-- Vägbeskrivningsruta -->
+  <div id="directions-box">Vägbeskrivning dyker upp här</div>
 
-  <!-- Popup för inställningar -->
-  <div id="settings-popup" class="hidden">
-    <h2>Inställningar</h2>
-    <label><input type="checkbox" id="auto-recenter" checked> Automatisk recenter</label><br>
-    <label><input type="checkbox" id="dark-mode"> Mörkt läge</label><br>
-    <label><input type="checkbox" id="tts-enabled" checked> TTS aktiverat</label><br>
-    <label><input type="checkbox" id="traffic-enabled" checked> Visa trafikinfo</label><br>
-    <button id="close-settings">Stäng</button>
-  </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
