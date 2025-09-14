@@ -2,26 +2,46 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Arn Maps BETA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigeringssystem</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
-<body class="light">
-  <!-- Kartan -->
+<body>
   <div id="map"></div>
 
-  <!-- Kontrollknappar -->
-  <div id="controls">
-    <button id="mode-toggle">🌙 / ☀️</button>
-    <input type="text" id="search" placeholder="Sök plats...">
-    <button id="recenter">Recenter</button>
-    <button id="tts-toggle">TTS On/Off</button>
+  <!-- Top bar -->
+  <div class="top-bar">
+    <input type="text" id="searchBox" placeholder="Sök destination...">
+    <button id="modeToggle">🌙</button>
+  </div>
+  <div id="suggestions"></div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <button id="recenterBtn">Recenter ✅</button>
+    <button id="travelModeBtn">Färdsätt</button>
   </div>
 
-  <!-- Vägbeskrivningsruta -->
-  <div id="directions-box">Vägbeskrivning dyker upp här</div>
+  <!-- Legend -->
+  <div class="legend">
+    <h4>Trafikinfo</h4>
+    <p><img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="18"> Händelse</p>
+  </div>
 
+  <!-- Travel mode popup -->
+  <div id="travelPopup" class="popup hidden">
+    <h3>Välj färdsätt</h3>
+    <button class="mode-option" data-mode="car">🚗 Bil</button>
+    <button class="mode-option" data-mode="bike">🚲 Cykel</button>
+    <button class="mode-option" data-mode="walk">🚶 Gå</button>
+    <button class="mode-option" data-mode="sl">🚌 Buss (SL)</button>
+    <button class="mode-option" data-mode="vasttrafik">🚌 Buss (Västtrafik)</button>
+    <button id="closeTravel">Stäng</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
